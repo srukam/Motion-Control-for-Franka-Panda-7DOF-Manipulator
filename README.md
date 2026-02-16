@@ -18,7 +18,7 @@ Behavior-based motion controller with state machine autonomy.
 ```bash
 roslaunch franka_panda phase1/panda_arm_controller_g.launch
 roslaunch franka_panda phase1/moveit_real_execution.launch
-python3 phase1/panda_init.py
+python3 phase1/panda_arm_controller.py
 ```
 
 ## Phase 2A: Vision Integration 🚧 In Progress
