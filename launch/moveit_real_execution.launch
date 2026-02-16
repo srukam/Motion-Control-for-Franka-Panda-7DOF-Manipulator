@@ -8,14 +8,13 @@
   <!-- Semantic description (SRDF from MoveIt config) -->
   <param name="robot_description_semantic" 
        command="$(find xacro)/xacro '$(find panda_moveit_config)/config/panda.srdf.xacro'" />
-  <rosparam command="load" file="$(find panda_moveit_config)/config/kinematics.yaml" subst_value="true" />
+  <rosparam command="load" file="$(find panda_arm_control)/config/kinematics.yaml" subst_value="true" />
 <node name="move_group" pkg="moveit_ros_move_group" type="move_group" output="screen">
   <param name="moveit_controller_manager" value="moveit_ros_control_interface::MoveItControllerManager" />
   
   <param name="fake_execution" value="false" />
   
-  <rosparam command="load" file="$(find panda_moveit_config)/config/ros_controllers.yaml"/>
-  <!-- <rosparam command="load" file="$(find panda_moveit_config)/config/kinematics.yaml" subst_value="true" /> -->
+  <rosparam command="load" file="$(find panda_arm_control)/config/ros_controllers.yaml"/>
 
   <param name="trajectory_execution/allowed_start_tolerance" value="0.0"/>
   <param name="trajectory_execution/execution_duration_monitoring" value="false"/>

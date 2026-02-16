@@ -92,7 +92,7 @@ class PandaController:
             Modified trajectory with monotonic timestamps
         """
         last_time = 0.0
-        dt = 0.02   # 20 ms minimum step
+        dt = 0.03   # 30 ms minimum step
         
         for pt in traj.joint_trajectory.points:
             t = pt.time_from_start.to_sec()
