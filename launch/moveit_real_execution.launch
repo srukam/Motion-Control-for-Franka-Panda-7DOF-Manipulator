@@ -1,0 +1,30 @@
+<launch>
+  <arg name="arm_id" default="panda" />
+  <!-- Robot description -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro '$(find franka_description)/robots/panda/panda.urdf.xacro' hand:=true " />
+
+
+  <!-- Semantic description (SRDF from MoveIt config) -->
+  <param name="robot_description_semantic" 
+       command="$(find xacro)/xacro '$(find panda_moveit_config)/config/panda.srdf.xacro'" />
+  <rosparam command="load" file="$(find panda_moveit_config)/config/kinematics.yaml" subst_value="true" />
+<node name="move_group" pkg="moveit_ros_move_group" type="move_group" output="screen">
+  <param name="moveit_controller_manager" value="moveit_ros_control_interface::MoveItControllerManager" />
+  
+  <param name="fake_execution" value="false" />
+  
+  <rosparam command="load" file="$(find panda_moveit_config)/config/ros_controllers.yaml"/>
+  <!-- <rosparam command="load" file="$(find panda_moveit_config)/config/kinematics.yaml" subst_value="true" /> -->
+
+  <param name="trajectory_execution/allowed_start_tolerance" value="0.0"/>
+  <param name="trajectory_execution/execution_duration_monitoring" value="false"/>
+  <param name="trajectory_execution/manage_controllers" value="true"/>
+
+</node>
+
+  <!-- RViz for planning visualization -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find panda_moveit_config)/launch/moveit.rviz"/>
+
+
+</launch>
