@@ -3,7 +3,8 @@
 
 Multi-phase robotics project implementing autonomous manipulation using ROS, MoveIt, and computer vision.
 
-[](https://github.com/srukam/Motion-Control-for-Franka-Panda-7DOF-Manipulator/Videos/Panda_arm_controller_phase1.gif)
+# Final Result
+![sample_results](Videos/Panda_arm_controller_phase1.gif)
 
 ## Phase 1: Cartesian Motion Control  Complete
 
