@@ -62,6 +62,15 @@
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
+  <!-- UR5 real-execution runtime dependencies -->
+  <exec_depend>ur_robot_driver</exec_depend>
+  <exec_depend>ur_description</exec_depend>
+  <exec_depend>ur5_moveit_config</exec_depend>
+  <exec_depend>ur_calibration</exec_depend>
+  <exec_depend>moveit_commander</exec_depend>
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>moveit_ros_visualization</exec_depend>
+
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

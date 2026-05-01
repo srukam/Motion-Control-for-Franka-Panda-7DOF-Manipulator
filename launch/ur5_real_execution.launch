@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--
+  UR5 real-robot bringup in REMOTE control mode.
+
+  Default robot_ip: 192.168.1.15
+
+  ============================================================================
+  Hardware prerequisites (do these on the teach pendant BEFORE launching ROS):
+  ============================================================================
+  1. Pendant top-right dropdown -> "Remote Control".
+     (Local mode silently drops external commands; this is the most common
+      "robot is up but does nothing" failure.)
+
+  2. Install the "External Control" URCap on the pendant once:
+       URCap file: $(find ur_robot_driver)/resources/externalcontrol-*.urcap
+     Setup -> URCaps -> "+" -> select the file -> reboot the controller.
+
+  3. Configure the External Control URCap:
+       Host IP   = the IP of THIS computer (the one running roslaunch)
+       Host name = anything
+       Custom port = 50002 (matches script_sender_port below)
+
+  4. On the pendant, create a program containing only an "External Control"
+     node. Save it (e.g. external_ctrl.urp) and press Play.
+
+     ALTERNATIVELY, after this launch is up, drive the dashboard remotely:
+       rosservice call /ur_hardware_interface/dashboard/load_program \
+         "filename: 'external_ctrl.urp'"
+       rosservice call /ur_hardware_interface/dashboard/play
+
+  5. Brakes released, safety popups dismissed, no protective stop active.
+
+  ============================================================================
+  Calibration (recommended, NOT required to launch):
+  ============================================================================
+  Per-robot kinematic calibration matters for sub-mm accuracy. Extract once:
+
+    roslaunch ur_calibration calibration_correction.launch \
+      robot_ip:=192.168.1.15 \
+      target_filename:="$(rospack find panda_arm_control)/config/ur5_calibration.yaml"
+
+  Then re-launch with:
+    roslaunch panda_arm_control ur5_real_execution.launch \
+      kinematics_config:=$(rospack find panda_arm_control)/config/ur5_calibration.yaml
+-->
+<launch>
+  <!-- Robot connection -->
+  <arg name="robot_ip" default="192.168.1.15" />
+
+  <!-- Reverse interface ports (must match External Control URCap on pendant) -->
+  <arg name="reverse_port"        default="50001" />
+  <arg name="script_sender_port"  default="50002" />
+  <arg name="trajectory_port"     default="50003" />
+  <arg name="script_command_port" default="50004" />
+
+  <!-- Kinematics: defaults to UR5 nominal; override with calibration file
+       extracted from THIS robot for accurate end-effector pose. -->
+  <arg name="kinematics_config"
+       default="$(find ur_description)/config/ur5/default_kinematics.yaml" />
+
+  <!-- Driver controllers. scaled_pos_joint_traj_controller is the one MoveIt
+       talks to; pos_joint_traj_controller is loaded but stopped, available
+       for manual switching if speed-scaling-aware execution is undesired. -->
+  <arg name="controller_config_file"
+       default="$(find ur_robot_driver)/config/ur5_controllers.yaml" />
+  <arg name="controllers"
+       default="joint_state_controller scaled_pos_joint_traj_controller speed_scaling_state_controller force_torque_sensor_controller" />
+  <arg name="stopped_controllers"
+       default="pos_joint_traj_controller joint_group_vel_controller" />
+
+  <!-- Optional features -->
+  <arg name="use_tool_communication" default="false" />
+  <arg name="headless_mode"          default="false" />
+
+  <!-- 1) UR5 hardware bringup (RTDE driver + ros_control + robot_state_publisher) -->
+  <include file="$(find ur_robot_driver)/launch/ur5_bringup.launch">
+    <arg name="robot_ip"               value="$(arg robot_ip)" />
+    <arg name="reverse_port"           value="$(arg reverse_port)" />
+    <arg name="script_sender_port"     value="$(arg script_sender_port)" />
+    <arg name="trajectory_port"        value="$(arg trajectory_port)" />
+    <arg name="script_command_port"    value="$(arg script_command_port)" />
+    <arg name="kinematics_config"      value="$(arg kinematics_config)" />
+    <arg name="controller_config_file" value="$(arg controller_config_file)" />
+    <arg name="controllers"            value="$(arg controllers)" />
+    <arg name="stopped_controllers"    value="$(arg stopped_controllers)" />
+    <arg name="use_tool_communication" value="$(arg use_tool_communication)" />
+    <arg name="headless_mode"          value="$(arg headless_mode)" />
+  </include>
+
+  <!-- 2) MoveIt planning + execution (loads SRDF, kinematics, controller list) -->
+  <include file="$(find ur5_moveit_config)/launch/ur5_moveit_planning_execution.launch" />
+
+  <!-- 3) RViz with the UR5 MoveIt config -->
+  <include file="$(find ur5_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="rviz_config" value="$(find ur5_moveit_config)/launch/moveit.rviz" />
+  </include>
+</launch>
